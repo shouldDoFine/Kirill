@@ -72,8 +72,8 @@ public class ConsoleHelperTest {
     @Test
     public void readIntTestShouldWriteError() {
         systemIn.provideLines("54646", "string", "54646");
-        int firstNumber = ConsoleHelper.readInt();
-        int secongNumber = ConsoleHelper.readInt();
+        ConsoleHelper.readInt();
+        ConsoleHelper.readInt();
         String resultMessage = systemOut.toString();
         assertEquals("Can't recognize number. Please try again.", resultMessage.replaceAll("\\r|\\n", ""));
     }
