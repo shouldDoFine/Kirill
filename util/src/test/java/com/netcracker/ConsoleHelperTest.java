@@ -5,9 +5,12 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.TextFromStandardInputStream;
+import org.junit.rules.ExpectedException;
 
 import java.io.*;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 
 import static org.junit.Assert.assertEquals;
@@ -17,6 +20,8 @@ public class ConsoleHelperTest {
     private static final PrintStream SYSTEM_OUT = System.out;
     @Rule
     public final TextFromStandardInputStream systemIn = emptyStandardInputStream();
+    @Rule
+    public final ExpectedException exception = ExpectedException.none();
     private OutputStream resultMessageStream;
 
     @Before
@@ -70,6 +75,15 @@ public class ConsoleHelperTest {
         String resultMessage = resultMessageStream.toString();
         String expected = "Can't recognize number. Please try again.";
         assertEquals(expected, resultMessage.replaceAll("\\r|\\n", ""));
+    }
+
+    @Test
+    public void exceptionWhenTryToCreateInstanceByReflection() throws NoSuchMethodException, IllegalAccessException,
+            InvocationTargetException, InstantiationException {
+        Constructor<ConsoleHelper> constructor = ConsoleHelper.class.getDeclaredConstructor();
+        constructor.setAccessible(true);
+        exception.expect(InvocationTargetException.class);
+        constructor.newInstance();
     }
 
 }
