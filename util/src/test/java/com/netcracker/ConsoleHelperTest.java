@@ -18,16 +18,18 @@ import static org.junit.contrib.java.lang.system.TextFromStandardInputStream.emp
 
 public class ConsoleHelperTest {
     private static final PrintStream SYSTEM_OUT = System.out;
+
     @Rule
     public final TextFromStandardInputStream systemIn = emptyStandardInputStream();
     @Rule
     public final ExpectedException exception = ExpectedException.none();
-    private OutputStream resultMessageStream;
+
+    private OutputStream systemOut;
 
     @Before
     public void setUpEachTest() {
-        resultMessageStream = new ByteArrayOutputStream();
-        PrintStream outputStream = new PrintStream(resultMessageStream);
+        this.systemOut = new ByteArrayOutputStream();
+        PrintStream outputStream = new PrintStream(systemOut);
         System.setOut(outputStream);
     }
 
@@ -49,12 +51,12 @@ public class ConsoleHelperTest {
     @Test
     public void writeMessageShouldPrintMessage() {
         ConsoleHelper.writeMessage("Hello");
-        String rez = resultMessageStream.toString().replaceAll("\\r|\\n", "");
+        String rez = systemOut.toString().replaceAll("\\r|\\n", "");
         assertEquals("Hello", rez);
     }
 
     @Test
-    public void readMessageTest() {
+    public void shouldReturnMessageWrittenToInputStream() {
         systemIn.provideLines("hi");
         String message = ConsoleHelper.readMessage();
         assertEquals("hi", message);
@@ -72,9 +74,8 @@ public class ConsoleHelperTest {
         systemIn.provideLines("54646", "string", "54646");
         int firstNumber = ConsoleHelper.readInt();
         int secongNumber = ConsoleHelper.readInt();
-        String resultMessage = resultMessageStream.toString();
-        String expected = "Can't recognize number. Please try again.";
-        assertEquals(expected, resultMessage.replaceAll("\\r|\\n", ""));
+        String resultMessage = systemOut.toString();
+        assertEquals("Can't recognize number. Please try again.", resultMessage.replaceAll("\\r|\\n", ""));
     }
 
     @Test
