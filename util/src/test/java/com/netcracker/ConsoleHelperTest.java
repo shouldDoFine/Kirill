@@ -44,7 +44,7 @@ public class ConsoleHelperTest {
     @Test
     public void writeMessageShouldPrintMessage() {
         ConsoleHelper.writeMessage("Hello");
-        String rez = resultMessageStream.toString().substring(0, 5);
+        String rez = resultMessageStream.toString().replaceAll("\\r|\\n", "");
         assertEquals("Hello", rez);
     }
 
@@ -69,7 +69,7 @@ public class ConsoleHelperTest {
         int secongNumber = ConsoleHelper.readInt();
         String resultMessage = resultMessageStream.toString();
         String expected = "Can't recognize number. Please try again.";
-        assertEquals(expected, resultMessage.substring(0, resultMessage.length() - 2));
+        assertEquals(expected, resultMessage.replaceAll("\\r|\\n", ""));
     }
 
 }
