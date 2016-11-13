@@ -7,16 +7,16 @@ import java.io.InputStreamReader;
 public class ConsoleHelper {
     private static final BufferedReader READER = new BufferedReader(new InputStreamReader(System.in));
 
-    private ConsoleHelper(){
+    private ConsoleHelper() {
         throw new RuntimeException("Don't create instance of this class");
     }
 
-    public static void writeMessage(String message){
+    public static void writeMessage(String message) {
         System.out.println(message);
     }
 
-    public static String readMessage(){
-        while(true) {
+    public static String readMessage() {
+        while (true) {
             try {
                 return READER.readLine();
             } catch (IOException e) {
@@ -25,8 +25,8 @@ public class ConsoleHelper {
         }
     }
 
-    public static int readInt(){
-        while(true) {
+    public static int readInt() {
+        while (true) {
             try {
                 String one = readMessage();
                 return Integer.parseInt(one);
