@@ -4,6 +4,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.SystemOutRule;
 import org.junit.contrib.java.lang.system.TextFromStandardInputStream;
 import org.junit.rules.ExpectedException;
 
@@ -17,21 +18,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.contrib.java.lang.system.TextFromStandardInputStream.emptyStandardInputStream;
 
 public class ConsoleHelperTest {
-    private static final PrintStream SYSTEM_OUT = System.out;
-
+    @Rule
+    public final SystemOutRule systemOut = new SystemOutRule().enableLog();
     @Rule
     public final TextFromStandardInputStream systemIn = emptyStandardInputStream();
     @Rule
     public final ExpectedException exception = ExpectedException.none();
-
-    private OutputStream systemOut;
-
-    @Before
-    public void setUpEachTest() {
-        this.systemOut = new ByteArrayOutputStream();
-        PrintStream outputStream = new PrintStream(systemOut);
-        System.setOut(outputStream);
-    }
 
     @Before
     public void reloadReaderInConsoleHelperClass() throws NoSuchFieldException, IllegalAccessException {
@@ -43,20 +35,15 @@ public class ConsoleHelperTest {
         bufferedReader.set(BufferedReader.class, new BufferedReader(new InputStreamReader(System.in)));
     }
 
-    @AfterClass
-    public static void oneTimeTearDown() {
-        System.setOut(SYSTEM_OUT);
-    }
-
     @Test
     public void writeMessageShouldPrintMessage() {
         ConsoleHelper.writeMessage("Hello");
-        String rez = systemOut.toString().replaceAll("\\r|\\n", "");
+        String rez = systemOut.getLog().replaceAll("\\n|\\r", "");
         assertEquals("Hello", rez);
     }
 
     @Test
-    public void shouldReturnMessageWrittenToInputStream() {
+    public void shouldReturnMessageWrittenToInputStream() throws IOException {
         systemIn.provideLines("hi");
         String message = ConsoleHelper.readMessage();
         assertEquals("hi", message);
@@ -70,12 +57,11 @@ public class ConsoleHelperTest {
     }
 
     @Test
-    public void readIntTestShouldWriteError() {
-        systemIn.provideLines("54646", "string", "54646");
+    public void readIntTestShouldWriteError() throws IOException {
+        systemIn.provideLines("54646", "string");
         ConsoleHelper.readInt();
+        exception.expect(NumberFormatException.class);
         ConsoleHelper.readInt();
-        String resultMessage = systemOut.toString();
-        assertEquals("Can't recognize number. Please try again.", resultMessage.replaceAll("\\r|\\n", ""));
     }
 
     @Test

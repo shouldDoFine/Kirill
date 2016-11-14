@@ -15,25 +15,12 @@ public class ConsoleHelper {
         System.out.println(message);
     }
 
-    public static String readMessage() {
-        while (true) {
-            try {
-                return READER.readLine();
-            } catch (IOException e) {
-                writeMessage("Error. Please try again.");
-            }
-        }
+    public static String readMessage() throws IOException {
+        return READER.readLine();
     }
 
-    public static int readInt() {
-        while (true) {
-            try {
-                String one = readMessage();
-                return Integer.parseInt(one);
-            } catch (NumberFormatException e) {
-                writeMessage("Can't recognize number. Please try again.");
-            }
-        }
+    public static int readInt() throws IOException {
+        return Integer.parseInt(readMessage());
     }
 
 }
