@@ -36,8 +36,9 @@ public class ConsoleHelperTest {
     }
 
     @Test
-    public void writeMessageShouldPrintMessage() {
+    public void shouldWriteMessageToSystemOut() {
         ConsoleHelper.writeMessage("Hello");
+
         String rez = systemOut.getLog().replaceAll("\\n|\\r", "");
         assertEquals("Hello", rez);
     }
@@ -45,30 +46,36 @@ public class ConsoleHelperTest {
     @Test
     public void shouldReturnMessageWrittenToInputStream() throws IOException {
         systemIn.provideLines("hi");
+
         String message = ConsoleHelper.readMessage();
+
         assertEquals("hi", message);
     }
 
     @Test
-    public void readIntTest() throws IOException {
+    public void shouldBeAllowToReadIntFromInputStream() throws IOException {
         systemIn.provideLines("54646");
+
         int number = ConsoleHelper.readInt();
+
         assertEquals(54646, number);
     }
 
     @Test
-    public void readIntTestShouldWriteError() throws IOException {
+    public void shouldThrowWhenAttemptingToReadGarbageAsInt() throws IOException {
         systemIn.provideLines("54646", "string");
+
         ConsoleHelper.readInt();
         exception.expect(NumberFormatException.class);
         ConsoleHelper.readInt();
     }
 
     @Test
-    public void exceptionWhenTryToCreateInstanceByReflection() throws NoSuchMethodException, IllegalAccessException,
+    public void shouldThrowWhenAttemptingToCreateClassInstance() throws NoSuchMethodException, IllegalAccessException,
             InvocationTargetException, InstantiationException {
         Constructor<ConsoleHelper> constructor = ConsoleHelper.class.getDeclaredConstructor();
         constructor.setAccessible(true);
+
         exception.expect(InvocationTargetException.class);
         constructor.newInstance();
     }
