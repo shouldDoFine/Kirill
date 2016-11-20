@@ -53,7 +53,7 @@ public class ConsoleHelperTest {
     }
 
     @Test
-    public void shouldBeAllowToReadIntFromInputStream() throws IOException {
+    public void shouldAllowToReadIntFromInputStream() throws IOException {
         systemIn.provideLines("54646");
 
         int number = ConsoleHelper.readInt();
@@ -64,9 +64,10 @@ public class ConsoleHelperTest {
     @Test
     public void shouldThrowWhenAttemptingToReadGarbageAsInt() throws IOException {
         systemIn.provideLines("54646", "string");
-
         ConsoleHelper.readInt();
+
         exception.expect(NumberFormatException.class);
+
         ConsoleHelper.readInt();
     }
 
@@ -77,6 +78,7 @@ public class ConsoleHelperTest {
         constructor.setAccessible(true);
 
         exception.expect(InvocationTargetException.class);
+
         constructor.newInstance();
     }
 
