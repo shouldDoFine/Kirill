@@ -9,17 +9,23 @@ import static org.junit.Assert.assertEquals;
 
 public class MessageTest {
     @Test
-    public void shouldReturnMessageTypeAndDataWhenTryToGet() {
+    public void shouldReturnMessageTypeWhenTryingToGet() {
         Message message = new Message(TEXT, "Message text");
 
         assertEquals(message.getMessageType(), TEXT);
+    }
+
+    @Test
+    public void shouldReturnTextWhenTryingToGet() {
+        Message message = new Message(TEXT, "Message text");
+
         assertEquals(message.getData(), "Message text");
     }
 
     @Test
-    public void givenMessageWithoutTextShouldReturnNullDataWhenTryToGet() {
+    public void givenMessageWithoutTextWhenTryingToGetDataThenReturnNullData() {
         Message message = new Message(NAME_REQUEST);
 
-        assertEquals(message.getData(), null);
+        assertEquals(true, message.getData().isEmpty());
     }
 }

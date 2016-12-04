@@ -8,7 +8,7 @@ public class Message implements Serializable{
 
     public Message(MessageType messageType) {
         this.messageType = messageType;
-        data = null;
+        data = "";
     }
 
     public Message(MessageType messageType, String data) {
