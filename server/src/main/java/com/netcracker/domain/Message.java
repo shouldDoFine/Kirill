@@ -1,8 +1,6 @@
 package com.netcracker.domain;
 
-import java.io.Serializable;
-
-public class Message implements Serializable{
+public class Message {
     private final MessageType messageType;
     private final String data;
 
