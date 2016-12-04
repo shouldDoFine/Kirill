@@ -23,7 +23,7 @@ public class MessageTest {
     }
 
     @Test
-    public void givenMessageWithoutTextWhenTryingToGetDataThenReturnNullData() {
+    public void givenMessageWithoutTextWhenTryingToGetDataThenReturnEmptyString() {
         Message message = new Message(NAME_REQUEST);
 
         assertEquals(true, message.getData().isEmpty());
