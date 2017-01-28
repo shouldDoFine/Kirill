@@ -6,7 +6,7 @@ public class Message {
 
     public Message(MessageType messageType) {
         this.messageType = messageType;
-        data = "";
+        this.data = "";
     }
 
     public Message(MessageType messageType, String data) {
