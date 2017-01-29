@@ -13,18 +13,18 @@ public class MessageTest {
     public void shouldReturnMessageTypeWhenAskingForIt() {
         Message message = new Message(TEXT, "Message text");
 
-        assertEquals(message.getMessageType(), TEXT);
+        assertEquals(TEXT, message.getMessageType());
     }
 
     @Test
-    public void shouldReturnTextWhenAskingForIt() {
+    public void shouldReturnDataWhenAskingForIt() {
         Message message = new Message(TEXT, "Message text");
 
         assertEquals("Message text", message.getData());
     }
 
     @Test
-    public void shouldContainEmptyDataWhenNonWasProvided() {
+    public void shouldBeEmptyWhenDataWasNotProvided() {
         Message message = new Message(NAME_REQUEST);
 
         assertTrue(message.getData().isEmpty());
