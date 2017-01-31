@@ -1,42 +1,71 @@
 package com.netcracker;
 
 import com.netcracker.domain.Message;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 import java.net.SocketAddress;
 
 import static com.netcracker.domain.MessageType.TEXT;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ConnectionTest {
-    private final Connection testConnection = mock(Connection.class);
+    private static Connection connection;
+    private static ByteArrayOutputStream innerOutputStream;
+    private static int originalNumberOfBytes;
+    private static final SocketAddress address = mock(SocketAddress.class);
+    private static final Message messageToReceive = new Message(TEXT, "MessageToReceive");
+    private static final Message messageToSend = new Message(TEXT, "MessageToSend");
+
+
+    @BeforeClass
+    public static void setUpConnectionObject() throws IOException {
+        ByteArrayOutputStream outerOutputStream = new ByteArrayOutputStream();
+        ObjectOutputStream outerOOS = new ObjectOutputStream(outerOutputStream);
+        outerOOS.writeObject(messageToReceive);
+        outerOOS.close();
+        ByteArrayInputStream innerInputStream = new ByteArrayInputStream(outerOutputStream.toByteArray());
+
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(buffer);
+        oos.writeObject(new Message(TEXT, "InOrderNotToGetEOFException"));
+        oos.close();
+        byte[] rawData = buffer.toByteArray();
+        originalNumberOfBytes = rawData.length;
+
+        innerOutputStream = new ByteArrayOutputStream();
+        innerOutputStream.write(rawData);
+
+        Socket socket = mock(Socket.class);
+        when(socket.getOutputStream()).thenReturn(innerOutputStream);
+        when(socket.getInputStream()).thenReturn(innerInputStream);
+        when(socket.getRemoteSocketAddress()).thenReturn(address);
+
+        connection = new Connection(socket);
+    }
 
     @Test
-    public void shouldSentMessageWhenAskingForIt() throws IOException {
-        Message messageShouldBeSent = new Message(TEXT, "messageShouldBeSent");
+    public void shouldSendMessageWhenAskingForIt() throws IOException, ClassNotFoundException {
+        connection.send(messageToSend);
 
-        testConnection.send(messageShouldBeSent);
-
-        verify(testConnection).send(messageShouldBeSent);
+        assertTrue(innerOutputStream.toByteArray().length > originalNumberOfBytes);
     }
 
     @Test
     public void shouldReceiveMessageWhenAskingForIt() throws IOException, ClassNotFoundException {
-        Message messageShouldBeReceived = new Message(TEXT, "messageShouldBeReceived");
-
-        when(testConnection.receive()).thenReturn(messageShouldBeReceived);
-
-        assertEquals(messageShouldBeReceived, testConnection.receive());
+        assertEquals(messageToReceive.getData(), connection.receive().getData());
     }
 
     @Test
     public void shouldReturnRemoteSocketAddressWhenAskingForIt() {
-        SocketAddress socketAddress = mock(SocketAddress.class);
-
-        when(testConnection.getRemoteSocketAddress()).thenReturn(socketAddress);
-
-        assertEquals(socketAddress, testConnection.getRemoteSocketAddress());
+        assertEquals(address, connection.getRemoteSocketAddress());
     }
 }
