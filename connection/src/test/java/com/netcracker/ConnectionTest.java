@@ -93,12 +93,19 @@ public class ConnectionTest {
     }
 
     @Test
-    public void canNotGetAndWriteMessagesWhenConnectionClosed() throws ClassNotFoundException, IOException {
+    public void canNotGetMessagesWhenConnectionClosed() throws ClassNotFoundException, IOException {
         setUpConnectionWithFileStream();
         connection.close();
 
         exception.expect(RuntimeException.class);
         connection.receive();
+    }
+
+    @Test
+    public void canNotSendMessagesWhenConnectionClosed() throws ClassNotFoundException, IOException {
+        setUpConnectionWithFileStream();
+        connection.close();
+
         exception.expect(RuntimeException.class);
         connection.send(messageToSend);
     }
