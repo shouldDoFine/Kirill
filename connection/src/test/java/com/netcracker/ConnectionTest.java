@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
 import java.net.SocketAddress;
 
@@ -63,7 +64,8 @@ public class ConnectionTest {
         FileInputStream innerInputStream = new FileInputStream("src\\test\\" +
                 "java\\com\\netcracker\\TestResource");
 
-        FileOutputStream innerOutputStream = mock(FileOutputStream.class);
+        FileOutputStream innerOutputStream = new FileOutputStream("src\\test\\" +
+                "java\\com\\netcracker\\TestResource");
 
         Socket socket = mock(Socket.class);
         when(socket.getOutputStream()).thenReturn(innerOutputStream);
