@@ -1,10 +1,7 @@
 package com.netcracker;
 
 import com.netcracker.domain.Message;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import java.io.*;
 import java.net.Socket;
@@ -41,7 +38,7 @@ public class ConnectionTest {
         setUpConnection(innerInputStream, innerOutputStream);
     }
 
-    private void setUpConnectionWithFileStream() throws Exception {
+    private void setUpConnectionObjectWithFileStreams() throws Exception {
         String resourcePath = "src\\test\\java\\com\\netcracker\\TestResource";
 
         FileOutputStream buffer = new FileOutputStream(resourcePath);
@@ -79,14 +76,14 @@ public class ConnectionTest {
 
     @Test
     public void shouldReturnRemoteSocketAddressWhenAskingForIt() throws Exception {
-        setUpConnectionWithFileStream();
+        setUpConnectionObjectWithByteStreams();
 
         assertEquals(address, connection.getRemoteSocketAddress());
     }
 
     @Test(expected = RuntimeException.class)
     public void canNotGetMessagesWhenConnectionClosed() throws Exception {
-        setUpConnectionWithFileStream();
+        setUpConnectionObjectWithFileStreams();
         connection.close();
 
         connection.receive();
@@ -94,7 +91,7 @@ public class ConnectionTest {
 
     @Test(expected = RuntimeException.class)
     public void canNotSendMessagesWhenConnectionClosed() throws Exception {
-        setUpConnectionWithFileStream();
+        setUpConnectionObjectWithFileStreams();
         connection.close();
 
         connection.send(messageToSend);
