@@ -24,7 +24,7 @@ public class Connection implements Closeable {
         try {
             outputStream.writeObject(message);
         } catch (IOException e) {
-            throw new RuntimeException("Невозможно отправить сообщение!");
+            throw new RuntimeException("Cannot send message!");
         }
     }
 
@@ -32,7 +32,7 @@ public class Connection implements Closeable {
         try {
             return (Message) inputStream.readObject();
         } catch (IOException e) {
-            throw new RuntimeException("Невозможно получить сообщение!");
+            throw new RuntimeException("Cannot receive message!");
         }
     }
 

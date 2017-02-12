@@ -7,7 +7,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
 import java.net.SocketAddress;
 
@@ -24,89 +23,80 @@ public class ConnectionTest {
     private static final SocketAddress address = mock(SocketAddress.class);
     private static final Message messageToReceive = new Message(TEXT, "MessageToReceive");
     private static final Message messageToSend = new Message(TEXT, "MessageToSend");
-    @Rule
-    public final ExpectedException exception = ExpectedException.none();
+    private static final Message testMessage = new Message(TEXT, "InOrderNotToGetEOFException");
 
-    @Before
-    public void setUpConnectionObjectWithByteStreams() throws IOException {
+    private void setUpConnectionObjectWithByteStreams() throws Exception {
         ByteArrayOutputStream outerOutputStream = new ByteArrayOutputStream();
         try (ObjectOutputStream outerOOS = new ObjectOutputStream(outerOutputStream)) {
             outerOOS.writeObject(messageToReceive);
         }
-        ByteArrayInputStream innerInputStream = new ByteArrayInputStream(outerOutputStream.toByteArray());
-
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        try (ObjectOutputStream oos = new ObjectOutputStream(buffer)) {
-            oos.writeObject(new Message(TEXT, "InOrderNotToGetEOFException"));
-        }
-        byte[] rawData = buffer.toByteArray();
-        originalNumberOfBytes = rawData.length;
 
         innerOutputStream = new ByteArrayOutputStream();
-        innerOutputStream.write(rawData);
+        try (ObjectOutputStream oos = new ObjectOutputStream(innerOutputStream)) {
+            oos.writeObject(testMessage);
+        }
+        originalNumberOfBytes = innerOutputStream.toByteArray().length;
 
-        Socket socket = mock(Socket.class);
-        when(socket.getOutputStream()).thenReturn(innerOutputStream);
-        when(socket.getInputStream()).thenReturn(innerInputStream);
-        when(socket.getRemoteSocketAddress()).thenReturn(address);
-
-        connection = new Connection(socket);
+        ByteArrayInputStream innerInputStream = new ByteArrayInputStream(outerOutputStream.toByteArray());
+        setUpConnection(innerInputStream, innerOutputStream);
     }
 
-    public void setUpConnectionWithFileStream() throws IOException {
-        FileOutputStream buffer = new FileOutputStream("src\\test\\" +
-                "java\\com\\netcracker\\TestResource");
+    private void setUpConnectionWithFileStream() throws Exception {
+        String resourcePath = "src\\test\\java\\com\\netcracker\\TestResource";
 
+        FileOutputStream buffer = new FileOutputStream(resourcePath);
         try (ObjectOutputStream oos = new ObjectOutputStream(buffer)) {
-            oos.writeObject(messageToSend);
+            oos.writeObject(testMessage);
         }
 
-        FileInputStream innerInputStream = new FileInputStream("src\\test\\" +
-                "java\\com\\netcracker\\TestResource");
+        FileInputStream innerInputStream = new FileInputStream(resourcePath);
+        FileOutputStream innerOutputStream = new FileOutputStream(resourcePath);
+        setUpConnection(innerInputStream, innerOutputStream);
+    }
 
-        FileOutputStream innerOutputStream = new FileOutputStream("src\\test\\" +
-                "java\\com\\netcracker\\TestResource");
-
+    private void setUpConnection(InputStream is, OutputStream os) throws Exception {
         Socket socket = mock(Socket.class);
-        when(socket.getOutputStream()).thenReturn(innerOutputStream);
-        when(socket.getInputStream()).thenReturn(innerInputStream);
+        when(socket.getOutputStream()).thenReturn(os);
+        when(socket.getInputStream()).thenReturn(is);
         when(socket.getRemoteSocketAddress()).thenReturn(address);
-
         connection = new Connection(socket);
     }
 
     @Test
-    public void shouldSendMessageWhenAskingForIt() throws IOException, ClassNotFoundException {
+    public void shouldSendMessageWhenAskingForIt() throws Exception {
+        setUpConnectionObjectWithByteStreams();
         connection.send(messageToSend);
 
         assertTrue(innerOutputStream.toByteArray().length > originalNumberOfBytes);
     }
 
     @Test
-    public void shouldReceiveMessageWhenAskingForIt() throws IOException, ClassNotFoundException {
+    public void shouldReceiveMessageWhenAskingForIt() throws Exception {
+        setUpConnectionObjectWithByteStreams();
+
         assertEquals(messageToReceive.getData(), connection.receive().getData());
     }
 
     @Test
-    public void shouldReturnRemoteSocketAddressWhenAskingForIt() {
+    public void shouldReturnRemoteSocketAddressWhenAskingForIt() throws Exception {
+        setUpConnectionWithFileStream();
+
         assertEquals(address, connection.getRemoteSocketAddress());
     }
 
-    @Test
-    public void canNotGetMessagesWhenConnectionClosed() throws ClassNotFoundException, IOException {
+    @Test(expected = RuntimeException.class)
+    public void canNotGetMessagesWhenConnectionClosed() throws Exception {
         setUpConnectionWithFileStream();
         connection.close();
 
-        exception.expect(RuntimeException.class);
         connection.receive();
     }
 
-    @Test
-    public void canNotSendMessagesWhenConnectionClosed() throws ClassNotFoundException, IOException {
+    @Test(expected = RuntimeException.class)
+    public void canNotSendMessagesWhenConnectionClosed() throws Exception {
         setUpConnectionWithFileStream();
         connection.close();
 
-        exception.expect(RuntimeException.class);
         connection.send(messageToSend);
     }
 }
