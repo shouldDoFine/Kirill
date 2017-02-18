@@ -14,9 +14,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ConnectionTest {
-    private static Connection connection;
-    private static ByteArrayOutputStream innerOutputStream;
-    private static int originalNumberOfBytes;
+    private Connection connection;
+    private ByteArrayOutputStream innerOutputStream;
+    private int originalNumberOfBytes;
     private static final SocketAddress address = mock(SocketAddress.class);
     private static final Message messageToReceive = new Message(TEXT, "MessageToReceive");
     private static final Message messageToSend = new Message(TEXT, "MessageToSend");
